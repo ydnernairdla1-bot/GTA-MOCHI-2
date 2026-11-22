@@ -1,0 +1,6 @@
+{
+  "name": "GTA Neon City",
+  "description": "Game open-world 3D bergaya GTA dengan misi jalanan, kejar-kejaran polisi, kendaraan, ganti senjata, dan progres karier lokal tanpa login.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

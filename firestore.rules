@@ -1,0 +1,152 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global safety net: deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidCareerProfile(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.callsign is string &&
+             data.callsign.size() >= 2 &&
+             data.callsign.size() <= 30 &&
+             data.cash is int &&
+             data.cash >= 0 &&
+             data.cash <= 999999999 &&
+             data.respect is int &&
+             data.respect >= 0 &&
+             data.respect <= 999999999 &&
+             data.highScore is int &&
+             data.highScore >= 0 &&
+             data.highScore <= 999999999 &&
+             data.missionsCompleted is int &&
+             data.missionsCompleted >= 0 &&
+             data.missionsCompleted <= 100000 &&
+             data.vehiclesStolen is int &&
+             data.vehiclesStolen >= 0 &&
+             data.vehiclesStolen <= 100000 &&
+             data.maxWantedSurvived is int &&
+             data.maxWantedSurvived >= 0 &&
+             data.maxWantedSurvived <= 5 &&
+             data.unlockedWeapons is list &&
+             data.unlockedWeapons.size() >= 1 &&
+             data.unlockedWeapons.size() <= 10 &&
+             data.unlockedWeapons[0] is string &&
+             data.equippedWeapon is string &&
+             data.equippedWeapon.size() >= 1 &&
+             data.equippedWeapon.size() <= 20 &&
+             data.ownedVehicles is list &&
+             data.ownedVehicles.size() >= 1 &&
+             data.ownedVehicles.size() <= 10 &&
+             data.ownedVehicles[0] is string &&
+             data.equippedVehicle is string &&
+             data.equippedVehicle.size() >= 1 &&
+             data.equippedVehicle.size() <= 20 &&
+             data.armorLevel is int &&
+             data.armorLevel >= 0 &&
+             data.armorLevel <= 3 &&
+             data.nitroLevel is int &&
+             data.nitroLevel >= 0 &&
+             data.nitroLevel <= 3 &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time &&
+             data.updatedAt is timestamp &&
+             data.updatedAt <= request.time;
+    }
+
+    function isValidMissionRun(data) {
+      return data.userId is string &&
+             data.userId == request.auth.uid &&
+             data.title is string &&
+             data.title.size() >= 1 &&
+             data.title.size() <= 80 &&
+             data.outcome in ['PASSED', 'BUSTED', 'WASTED', 'HEIST'] &&
+             data.cashEarned is int &&
+             data.cashEarned >= -100000 &&
+             data.cashEarned <= 1000000 &&
+             data.wantedPeak is int &&
+             data.wantedPeak >= 0 &&
+             data.wantedPeak <= 5 &&
+             data.createdAt is timestamp &&
+             data.createdAt <= request.time;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if isOwner(userId);
+
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll([
+                         'userId', 'callsign', 'cash', 'respect', 'highScore',
+                         'missionsCompleted', 'vehiclesStolen', 'maxWantedSurvived',
+                         'unlockedWeapons', 'equippedWeapon', 'ownedVehicles',
+                         'equippedVehicle', 'armorLevel', 'nitroLevel',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       incoming().keys().hasOnly([
+                         'userId', 'callsign', 'cash', 'respect', 'highScore',
+                         'missionsCompleted', 'vehiclesStolen', 'maxWantedSurvived',
+                         'unlockedWeapons', 'equippedWeapon', 'ownedVehicles',
+                         'equippedVehicle', 'armorLevel', 'nitroLevel',
+                         'createdAt', 'updatedAt'
+                       ]) &&
+                       isValidCareerProfile(incoming());
+
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       isValidCareerProfile(incoming()) &&
+                       incoming().diff(existing()).affectedKeys().hasOnly([
+                         'callsign', 'cash', 'respect', 'highScore',
+                         'missionsCompleted', 'vehiclesStolen', 'maxWantedSurvived',
+                         'unlockedWeapons', 'equippedWeapon', 'ownedVehicles',
+                         'equippedVehicle', 'armorLevel', 'nitroLevel',
+                         'updatedAt'
+                       ]);
+
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /runs/{runId} {
+        allow get: if isOwner(userId) && isValidId(runId);
+        allow list: if isOwner(userId);
+
+        allow create: if isOwner(userId) &&
+                         isValidId(runId) &&
+                         incoming().keys().hasAll([
+                           'userId', 'title', 'outcome', 'cashEarned', 'wantedPeak', 'createdAt'
+                         ]) &&
+                         incoming().keys().hasOnly([
+                           'userId', 'title', 'outcome', 'cashEarned', 'wantedPeak', 'createdAt'
+                         ]) &&
+                         isValidMissionRun(incoming());
+
+        allow update: if false;
+        allow delete: if isOwner(userId) && isValidId(runId);
+      }
+    }
+  }
+}

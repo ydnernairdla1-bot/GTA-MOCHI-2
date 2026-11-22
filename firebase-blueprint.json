@@ -1,0 +1,150 @@
+{
+  "entities": {
+    "CareerProfile": {
+      "title": "CareerProfile",
+      "description": "Persistent player career stats, inventory, and upgrades for Neon Vice.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase Auth UID owning this career profile."
+        },
+        "callsign": {
+          "type": "string",
+          "description": "Player street alias displayed on the HUD and profile."
+        },
+        "cash": {
+          "type": "integer",
+          "description": "In-game cash balance in dollars."
+        },
+        "respect": {
+          "type": "integer",
+          "description": "Total street respect points earned."
+        },
+        "highScore": {
+          "type": "integer",
+          "description": "Highest single-session score achieved."
+        },
+        "missionsCompleted": {
+          "type": "integer",
+          "description": "Total missions completed."
+        },
+        "vehiclesStolen": {
+          "type": "integer",
+          "description": "Total vehicles hijacked."
+        },
+        "maxWantedSurvived": {
+          "type": "integer",
+          "description": "Peak police wanted level (0-5) survived."
+        },
+        "unlockedWeapons": {
+          "type": "array",
+          "description": "List of unlocked weapon IDs (up to 10)."
+        },
+        "equippedWeapon": {
+          "type": "string",
+          "description": "Currently selected weapon ID."
+        },
+        "ownedVehicles": {
+          "type": "array",
+          "description": "List of owned garage vehicle IDs (up to 10)."
+        },
+        "equippedVehicle": {
+          "type": "string",
+          "description": "Currently selected personal vehicle ID."
+        },
+        "armorLevel": {
+          "type": "integer",
+          "description": "Body armor upgrade tier (0-3)."
+        },
+        "nitroLevel": {
+          "type": "integer",
+          "description": "Vehicle nitro boost upgrade tier (0-3)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the career was created (FieldValue.serverTimestamp())."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp of the latest career save (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "callsign",
+        "cash",
+        "respect",
+        "highScore",
+        "missionsCompleted",
+        "vehiclesStolen",
+        "maxWantedSurvived",
+        "unlockedWeapons",
+        "equippedWeapon",
+        "ownedVehicles",
+        "equippedVehicle",
+        "armorLevel",
+        "nitroLevel",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "MissionRun": {
+      "title": "MissionRun",
+      "description": "Immutable street activity / mission log entry for the player's rap sheet.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Authenticated Firebase Auth UID owning this log entry."
+        },
+        "title": {
+          "type": "string",
+          "description": "Mission or incident title."
+        },
+        "outcome": {
+          "type": "string",
+          "enum": ["PASSED", "BUSTED", "WASTED", "HEIST"],
+          "description": "Outcome of the street run."
+        },
+        "cashEarned": {
+          "type": "integer",
+          "description": "Net cash gained or lost during the run."
+        },
+        "wantedPeak": {
+          "type": "integer",
+          "description": "Peak wanted stars reached (0-5)."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp when the run was recorded (FieldValue.serverTimestamp())."
+        }
+      },
+      "required": [
+        "userId",
+        "title",
+        "outcome",
+        "cashEarned",
+        "wantedPeak",
+        "createdAt"
+      ]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/CareerProfile"
+      },
+      "description": "User-owned career profile document."
+    },
+    "/users/{userId}/runs/{runId}": {
+      "schema": {
+        "$ref": "#/entities/MissionRun"
+      },
+      "description": "User-owned street mission and chase history subcollection."
+    }
+  }
+}

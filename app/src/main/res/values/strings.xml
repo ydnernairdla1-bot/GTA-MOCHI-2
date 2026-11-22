@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">GTA Neon City</string>
+    <string name="tagline_subtitle">OPEN WORLD ACTION SANDBOX</string>
+    <string name="reset_career">Reset Progres Karier</string>
+    <string name="nav_play">Main</string>
+    <string name="nav_missions">Misi</string>
+    <string name="nav_shop">Pasar Gelap</string>
+    <string name="nav_profile">Karier</string>
+    <string name="btn_enter_city">TURUN KE KOTA</string>
+    <string name="btn_play">PLAY</string>
+    <string name="btn_resume_city">LANJUTKAN BERMAIN</string>
+    <string name="cd_hero_banner">Latar menu awal Grand Theft Auto Mochi</string>
+    <string name="cd_radar_minimap">Radar peta kota GTA Neon City</string>
+    <string name="cd_fire_button">Tembak atau serang</string>
+    <string name="cd_hijack_button">Masuk atau bajak kendaraan</string>
+    <string name="cd_nitro_button">Lari cepat atau nitro kendaraan</string>
+    <string name="cd_weapon_switch">Ganti senjata</string>
+    <string name="cd_pause_menu">Buka menu telepon kota</string>
+    <string name="cd_camera_mode">Ganti sudut kamera 3D</string>
+    <string name="cd_sound_toggle">Matikan atau nyalakan efek suara</string>
+</resources>
